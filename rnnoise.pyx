@@ -24,7 +24,7 @@ def denoise_file(infile, outfile):
     cdef struct_stat buf;
     cdef int status;
     cdef int filenum;
-    cdef float *vad_probs;
+    cdef double *vad_probs;
     cdef DenoiseState *st;
     cdef short tmp[FRAME_SIZE];
 
@@ -38,7 +38,7 @@ def denoise_file(infile, outfile):
         return []
 
     numframes = (buf.st_size * 8 / 16) / FRAME_SIZE;
-    vad_probs = <float *>malloc(numframes * sizeof(float));
+    vad_probs = <double *>malloc(numframes * sizeof(double));
 
     while 1:
         fread(tmp, sizeof(short), FRAME_SIZE, f1);
@@ -50,7 +50,7 @@ def denoise_file(infile, outfile):
             x[i] = <float> tmp[i];
 
         vad_prob = rnnoise_process_frame(st, x, x);
-        vad_probs[count] = vad_prob;
+        vad_probs[count] = <double> vad_prob;
 
         for i in range(0, FRAME_SIZE):
             tmp[i] = <short> x[i];
